@@ -54,10 +54,9 @@ class LeaderboardView(viewsets.ViewSet):
             'user__id', 'user__username', 'user__avatar_url'
         ).annotate(
             best_score=Max('score'),
-            # To get best_time_taken corresponding to best_score is tricky in ORM.
-            # We'll use a simplified version or a window function.
+            min_time=Min('time_taken'),
             total_attempts=Count('id')
-        ).order_by('-best_score')
+        ).order_by('-best_score', 'min_time')
 
         # Add ranking manually or using Window function
         # Since we are filtering by quiz_id, we can Rank over the annotated results.

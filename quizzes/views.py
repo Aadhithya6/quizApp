@@ -9,6 +9,7 @@ from django.views.decorators.cache import cache_page
 from .models import Category, Tag, Quiz
 from .serializers import CategorySerializer, TagSerializer, QuizSerializer, QuizCreateUpdateSerializer
 from .services import submit_quiz_for_review, publish_quiz, reject_quiz
+from accounts.models import User
 from common.permissions import IsAdminUser, IsOwnerOrReadOnly
 from interactions.models import QuizRating, Notification
 from interactions.serializers import QuizRatingSerializer
@@ -51,9 +52,16 @@ class QuizViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_authenticated and (user.role == 'ADMIN' or self.action == 'pending'):
-            return Quiz.objects.all()
-        # For public listing, only show published quizzes
+        if user.is_authenticated:
+            if user.role == User.Role.ADMIN or self.action == 'pending':
+                return Quiz.objects.all()
+            # Owners can see their own quizzes (draft/pending), everyone else sees published
+            from django.db.models import Q
+            return Quiz.objects.filter(
+                Q(status=Quiz.Status.PUBLISHED, is_active=True) | 
+                Q(created_by=user)
+            )
+        # Unauthenticated users only see published
         return Quiz.objects.filter(status=Quiz.Status.PUBLISHED, is_active=True)
 
     def get_serializer_class(self):
