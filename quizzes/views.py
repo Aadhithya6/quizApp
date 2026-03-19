@@ -3,6 +3,8 @@ from rest_framework import viewsets, permissions, status, decorators
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
 from .models import Category, Tag, Quiz
 from .serializers import CategorySerializer, TagSerializer, QuizSerializer, QuizCreateUpdateSerializer
@@ -38,6 +40,14 @@ class QuizViewSet(viewsets.ModelViewSet):
     filterset_fields = ('category', 'difficulty', 'status', 'tags')
     search_fields = ('title', 'topic', 'description')
     ordering_fields = ('created_at', 'published_at')
+
+    @method_decorator(cache_page(60 * 15))  # Cache for 15 minutes
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @method_decorator(cache_page(60 * 15))
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
 
     def get_queryset(self):
         user = self.request.user
