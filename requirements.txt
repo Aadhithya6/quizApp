@@ -1,0 +1,9 @@
+django
+djangorestframework
+djangorestframework-simplejwt
+django-filter
+psycopg2-binary
+django-cors-headers
+django-environ
+openai
+requests
