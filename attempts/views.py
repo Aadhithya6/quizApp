@@ -18,18 +18,6 @@ class AttemptViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
 
-    @decorators.action(detail=False, methods=['post'], url_path='start/(?P<quiz_id>[^/.]+)')
-    def start(self, request, quiz_id=None):
-        try:
-            quiz = Quiz.objects.get(id=quiz_id, status=Quiz.Status.PUBLISHED)
-        except Quiz.DoesNotExist:
-            return Response({"error": "Quiz not found or not published."}, status=status.HTTP_404_NOT_FOUND)
-        
-        try:
-            attempt = start_quiz_attempt(request.user, quiz)
-            return Response(AttemptSerializer(attempt).data, status=status.HTTP_201_CREATED)
-        except ValueError as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @decorators.action(detail=True, methods=['get'])
     def questions(self, request, pk=None):
