@@ -32,7 +32,7 @@
 
         .container {
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
             background: var(--card);
             padding: 2.5rem;
             border-radius: 24px;
@@ -167,18 +167,43 @@
         </div>
 
         <div class="input-group">
-            <label>API Endpoint Path</label>
-            <div style="display: flex; gap: 8px;">
-                <input type="text" id="apiEndpoint" value="/" placeholder="/api/v1/...">
-                <select id="endpointPicker" onchange="document.getElementById('apiEndpoint').value = this.value"
-                    style="background: #334155; border: 1px solid #475569; border-radius: 8px; color: white; padding: 0 8px;">
-                    <option value="/">Root (/) </option>
-                    <option value="/api/v1/health/">Health Check </option>
-                    <option value="/api/v1/auth/register/">Auth - Register </option>
-                    <option value="/api/v1/auth/login/">Auth - Login </option>
-                    <option value="/api/v1/quizzes/">Quizzes </option>
+            <label>API Endpoint & Method</label>
+            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                <select id="apiMethod" onchange="toggleBody()"
+                    style="background: #334155; border: 1px solid #475569; border-radius: 12px; color: white; padding: 0 12px; font-weight: 600;">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="PATCH">PATCH</option>
+                    <option value="DELETE">DELETE</option>
                 </select>
+                <input type="text" id="apiEndpoint" value="/" placeholder="/api/v1/..." style="flex-grow: 1;">
             </div>
+            <select id="endpointPicker" onchange="updateEndpoint(this.value)"
+                style="width: 100%; background: #334155; border: 1px solid #475569; border-radius: 12px; color: white; padding: 10px; font-size: 0.85rem;">
+                <option value="GET|/">Root (/) </option>
+                <option value="GET|/api/v1/health/">Health Check </option>
+                <option value="POST|/api/v1/auth/register/|{&quot;username&quot;:&quot;testuser&quot;,&quot;password&quot;:&quot;Pass123!&quot;,&quot;email&quot;:&quot;test@example.com&quot;}">Auth - Register </option>
+                <option value="POST|/api/v1/auth/login/|{&quot;username&quot;:&quot;testuser&quot;,&quot;password&quot;:&quot;Pass123!&quot;}">Auth - Login </option>
+                <option value="GET|/api/v1/quizzes/">Quizzes </option>
+                <option value="GET|/api/v1/users/me/">My Profile (Auth req)</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Bearer Token (Authorization)</label>
+            <input type="text" id="authToken" placeholder="Paste JWT token here..." style="font-size: 0.8rem;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 0.8rem; color: #94a3b8;">
+                <input type="checkbox" id="autoStore" style="width: auto;" checked>
+                <span>Auto-update token from login response</span>
+            </div>
+        </div>
+
+        <div class="input-group" id="bodyGroup" style="display: none;">
+            <label>Request Body (JSON)</label>
+            <textarea id="apiBody" 
+                style="width: 100%; height: 120px; background: rgba(15, 23, 42, 0.5); border: 1px solid #334155; border-radius: 12px; color: #10b981; font-family: monospace; padding: 12px; box-sizing: border-box; resize: vertical;"
+                placeholder='{"key": "value"}'></textarea>
         </div>
 
         <button onclick="testConnection()">
@@ -190,9 +215,27 @@
     </div>
 
     <script>
+        function toggleBody() {
+            const method = document.getElementById('apiMethod').value;
+            document.getElementById('bodyGroup').style.display = method === 'GET' ? 'none' : 'block';
+        }
+
+        function updateEndpoint(val) {
+            const [method, path, body] = val.split('|');
+            document.getElementById('apiMethod').value = method;
+            document.getElementById('apiEndpoint').value = path;
+            if (body) document.getElementById('apiBody').value = JSON.stringify(JSON.parse(body), null, 2);
+            toggleBody();
+        }
+
         async function testConnection() {
             const urlBaseInput = document.getElementById('apiUrl');
             const endpointInput = document.getElementById('apiEndpoint');
+            const methodInput = document.getElementById('apiMethod');
+            const bodyInput = document.getElementById('apiBody');
+            const tokenInput = document.getElementById('authToken');
+            const autoStore = document.getElementById('autoStore');
+
             const resultDiv = document.getElementById('result');
             const loader = document.getElementById('loader');
             const btnText = document.getElementById('btnText');
@@ -205,6 +248,7 @@
             if (!endpoint.startsWith('/')) endpoint = '/' + endpoint;
 
             const fullUrl = baseUrl + endpoint;
+            const method = methodInput.value;
 
             // Reset UI
             resultDiv.className = '';
@@ -213,15 +257,33 @@
             btnText.style.display = 'none';
 
             try {
-                const response = await fetch(fullUrl, {
-                    method: 'GET',
-                    headers: { 'Accept': 'application/json' }
-                });
+                const headers = { 
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                };
+
+                if (tokenInput.value.trim()) {
+                    headers['Authorization'] = `Bearer ${tokenInput.value.trim()}`;
+                }
+
+                const options = { method, headers };
+
+                if (method !== 'GET' && bodyInput.value.trim()) {
+                    options.body = bodyInput.value.trim();
+                }
+
+                const response = await fetch(fullUrl, options);
 
                 if (response.ok) {
                     const data = await response.json();
+                    
+                    // Auto-store token logic
+                    if (autoStore.checked && data.access) {
+                        tokenInput.value = data.access;
+                    }
+
                     resultDiv.className = 'success';
-                    resultDiv.innerHTML = `<strong>Connected!</strong> Status: ${response.status}<br><br>API Response: <pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    resultDiv.innerHTML = `<strong>Success!</strong> Status: ${response.status}<br><br>API Response: <pre>${JSON.stringify(data, null, 2)}</pre>`;
                 } else {
                     resultDiv.className = 'error';
                     const errorText = await response.text().catch(() => 'No response body');
