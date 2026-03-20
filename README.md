@@ -86,8 +86,7 @@ erDiagram
 ```
 
 > [!TIP]
-> **View Interactive Schema**: For a detailed view of all table attributes and relationships, check the [Interactive ERD Documentation](./ERD.html).
-
+> **View Interactive Schema**: For a detailed view of all table attributes and relationships, check the [Interactive ERD Documentation](./ERD.html).Download this file from github and open in chrome browser.
 ### Core Relationships:
 - **Users & Quizzes**: Users create quizzes (Owners). Admin/Moderators can review and publish them.
 - **Quizzes & Questions**: A quiz is a collection of ordered questions.
