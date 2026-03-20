@@ -181,12 +181,47 @@
             </div>
             <select id="endpointPicker" onchange="updateEndpoint(this.value)"
                 style="width: 100%; background: #334155; border: 1px solid #475569; border-radius: 12px; color: white; padding: 10px; font-size: 0.85rem;">
-                <option value="GET|/">Root (/) </option>
-                <option value="GET|/api/v1/health/">Health Check </option>
-                <option value="POST|/api/v1/auth/register/|{&quot;username&quot;:&quot;testuser&quot;,&quot;password&quot;:&quot;Pass123!&quot;,&quot;email&quot;:&quot;test@example.com&quot;}">Auth - Register </option>
-                <option value="POST|/api/v1/auth/login/|{&quot;username&quot;:&quot;testuser&quot;,&quot;password&quot;:&quot;Pass123!&quot;}">Auth - Login </option>
-                <option value="GET|/api/v1/quizzes/">Quizzes </option>
-                <option value="GET|/api/v1/users/me/">My Profile (Auth req)</option>
+                <option value="">-- Select an Endpoint --</option>
+                
+                <optgroup label="Authentication & Users">
+                    <option value="POST|/api/v1/auth/register/|{&quot;username&quot;:&quot;testuser&quot;,&quot;password&quot;:&quot;Pass123!&quot;,&quot;email&quot;:&quot;test@example.com&quot;}">Register User</option>
+                    <option value="POST|/api/v1/auth/login/|{&quot;username&quot;:&quot;testuser&quot;,&quot;password&quot;:&quot;Pass123!&quot;}">Login (Get Token)</option>
+                    <option value="POST|/api/v1/auth/refresh/|{&quot;refresh&quot;:&quot;your_refresh_token_here&quot;}">Refresh Token</option>
+                    <option value="GET|/api/v1/users/me/">My Profile</option>
+                    <option value="GET|/api/v1/users/me/quizzes/">My Quizzes</option>
+                    <option value="GET|/api/v1/users/me/attempts/">My Attempts</option>
+                </optgroup>
+
+                <optgroup label="Quizzes & Categories">
+                    <option value="GET|/api/v1/quizzes/">List Quizzes</option>
+                    <option value="POST|/api/v1/quizzes/|{&quot;title&quot;:&quot;New Quiz&quot;,&quot;topic&quot;:&quot;General Knowledge&quot;,&quot;difficulty&quot;:&quot;medium&quot;,&quot;category&quot;:1}">Create Quiz</option>
+                    <option value="GET|/api/v1/categories/">List Categories</option>
+                    <option value="POST|/api/v1/categories/|{&quot;name&quot;:&quot;Science&quot;}">Create Category</option>
+                    <option value="GET|/api/v1/tags/">List Tags</option>
+                </optgroup>
+
+                <optgroup label="Questions & Options">
+                    <option value="GET|/api/v1/questions/">List Questions</option>
+                    <option value="POST|/api/v1/questions/|{&quot;quiz&quot;:null,&quot;text&quot;:&quot;What is 2+2?&quot;,&quot;type&quot;:&quot;single&quot;,&quot;points&quot;:1}">Create Question</option>
+                    <option value="GET|/api/v1/options/">List Options</option>
+                </optgroup>
+
+                <optgroup label="Attempts & Answers">
+                    <option value="GET|/api/v1/attempts/">List Attempts</option>
+                    <option value="POST|/api/v1/attempts/|{&quot;quiz&quot;:null}">Start Attempt</option>
+                </optgroup>
+
+                <optgroup label="Analytics & Interactions">
+                    <option value="GET|/api/v1/analytics/quizzes/UUID_HERE/stats/">Quiz Stats</option>
+                    <option value="GET|/api/v1/analytics/quizzes/UUID_HERE/leaderboard/">Leaderboard</option>
+                    <option value="GET|/api/v1/interactions/follows/">Following List</option>
+                    <option value="GET|/api/v1/interactions/notifications/">Notifications</option>
+                </optgroup>
+
+                <optgroup label="System">
+                    <option value="GET|/">API Root</option>
+                    <option value="GET|/api/v1/health/">System Health</option>
+                </optgroup>
             </select>
         </div>
 
