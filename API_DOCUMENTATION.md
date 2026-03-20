@@ -5,93 +5,105 @@ This document provides a detailed reference for all available API endpoints in t
 ## 🔐 Authentication
 The API uses JSON Web Tokens (JWT) for authentication.
 - **Header**: `Authorization: Bearer <your_access_token>`
-- **Token URL**: `/api/v1/auth/login/`
-- **Refresh URL**: `/api/v1/auth/refresh/`
+- **Login**: `POST /api/v1/auth/login/`
+- **Refresh**: `POST /api/v1/auth/refresh/`
+
+### 📋 Token Refresh Example
+**Request Body**:
+```json
+{
+  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
 
 ## 🛡️ Permissions & Roles
 
-- **Public**: Anyone can access.
+- **Public**: Anyone can access (Read-only).
 - **Authenticated**: Requires a valid JWT token.
-- **Admin**: Staff users only.
-- **Owner**: The user who created the quiz (`Quiz.created_by`).
+- **Admin**: Staff users only (Manage Categories/Tags, Review Quizzes).
+- **Owner**: The user who created the resource (`created_by`).
 
-## 👤 User Data (`/api/v1/users/me/`)
+---
+
+## 👤 User Profile (`/api/v1/users/me/`)
 
 | Method | Endpoint | Description | Perms |
 | :--- | :--- | :--- | :--- |
 | `GET` | `/` | Get current user profile. | Authenticated |
-| `GET` | `/attempts/` | Get user's quiz attempt history. | Authenticated |
-| `GET` | `/quizzes/` | Get quizzes created by the user. | Authenticated |
+| `PATCH` | `/` | Update profile (bio, avatar, etc.). | Authenticated |
+| `GET` | `/quizzes/` | Get quizzes created by you. | Authenticated |
+| `GET` | `/attempts/` | Get your quiz attempt history. | Authenticated |
 
-### 📋 User Profile Example
-```json
-{
-  "id": "u1-v2-w3",
-  "username": "johndoe",
-  "email": "john@example.com",
-  "role": "USER",
-  "avatar_url": null
-}
-```
+---
 
-## 📂 Quizzes (`/api/v1/quizzes/`)
+## 📂 Quizzes & Content
+
+### 🏗️ Quizzes (`/api/v1/quizzes/`)
 
 | Method | Endpoint | Description | Perms |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/` | List all published quizzes or user's owned quizzes. | Public |
-| `POST` | `/` | Create a new quiz (with optional AI generation). | Authenticated |
-| `GET` | `/{id}/` | Get detailed information about a specific quiz. | Public |
-| `PATCH` | `/{id}/` | Update an existing quiz. | Owner |
+| `GET` | `/` | List all published quizzes. Supports filtering. | Public |
+| `POST` | `/` | Create a new quiz (Manual or AI-generated). | Authenticated |
+| `GET` | `/{id}/` | Get detailed quiz information. | Public |
+| `PATCH` | `/{id}/` | Update quiz details. | Owner |
 | `DELETE` | `/{id}/` | Delete a quiz. | Owner |
-| `POST` | `/{id}/submit/` | Submit a draft quiz for admin review. | Owner |
-| `POST` | `/{id}/publish/` | Publish a pending quiz. | Admin |
+| `POST` | `/{id}/submit/` | Submit a draft for admin review. | Owner |
+| `POST` | `/{id}/publish/` | Approve and publish a quiz. | Admin |
 | `POST` | `/{id}/reject/` | Reject a pending quiz. | Admin |
-| `GET` | `/pending/` | List all quizzes awaiting review. | Admin |
-| `POST` | `/{id}/attempts/` | Start a new attempt for a quiz. | Authenticated |
-| `POST` | `/{id}/retry/` | Shorthand to start a new attempt (increments attempt_number). | Authenticated |
-| `POST` | `/{id}/rating/` | Rate and review a quiz (1-5). | Authenticated |
-| `GET` | `/{id}/ratings/` | List all ratings for a quiz (includes avatars). | Public |
-| `GET` | `/{id}/attempts/` | List your attempts for this quiz (Admin sees all). | Authenticated |
+| `GET` | `/pending/` | List quizzes awaiting review. | Admin |
+| `POST` | `/{id}/attempts/` | Start a new attempt. | Authenticated |
+| `POST` | `/{id}/retry/` | Shorthand to start a new attempt. | Authenticated |
+| `POST` | `/{id}/rating/` | Submit/Update a rating (1-5). | Authenticated |
+| `GET` | `/{id}/ratings/` | List all ratings for this quiz. | Public |
 
-### 📋 Quiz Response Example
+**Quiz Creation Example (AI)**:
+`POST /api/v1/quizzes/`
 ```json
 {
-  "id": "e4b3c2a1-5d6e-7f8a-9b0c-1d2e3f4g5h6i",
-  "title": "Python Basics",
-  "topic": "Programming",
-  "difficulty": "MEDIUM",
-  "category_name": "Computer Science",
-  "question_count": 10,
-  "created_at": "2024-03-20T10:00:00Z"
+  "title": "History of Rome",
+  "topic": "Roman Empire",
+  "difficulty": "HARD",
+  "generate_with_ai": true,
+  "num_questions": 5
 }
 ```
 
-## 📝 Questions & Options
+### 🏷️ Categories & Tags
 
 | Method | Endpoint | Description | Perms |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/api/v1/questions/` | List questions for a quiz. | Public |
-| `POST` | `/api/v1/questions/` | Add a question manually. | Owner |
-| `PATCH` | `/api/v1/questions/{id}/` | Edit a question. | Owner |
-| `PATCH` | `/api/v1/options/{id}/` | Edit an option. | Owner |
+| `GET` | `/api/v1/categories/` | List all active categories. | Public |
+| `POST` | `/api/v1/categories/` | Create a new category. | Admin |
+| `GET` | `/api/v1/tags/` | List all active tags. | Public |
+| `POST` | `/api/v1/tags/` | Create a new tag. | Admin |
+
+### 📝 Questions & Options
+
+| Method | Endpoint | Description | Perms |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/questions/` | List all questions (filtered by quiz). | Public |
+| `POST` | `/api/v1/questions/` | Create a question manually. | Owner |
+| `GET` | `/api/v1/options/` | List options. | Public |
+| `POST` | `/api/v1/options/` | Create an option. | Owner |
+
+---
 
 ## 🕹️ Quiz Attempts (`/api/v1/attempts/`)
 
 | Method | Endpoint | Description | Perms |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/{id}/questions/` | Fetch questions for an active attempt (handles shuffling). | Authenticated |
-| `POST` | `/{id}/answers/` | Submit an answer for a specific question. | Authenticated |
+| `GET` | `/{id}/` | Get attempt summary and result. | Authenticated |
+| `GET` | `/{id}/questions/` | Fetch questions for active attempt. | Authenticated |
+| `POST` | `/{id}/answers/` | Submit/Update an answer. | Authenticated |
 | `POST` | `/{id}/submit/` | Finish and grade the attempt. | Authenticated |
+| `GET` | `/{id}/review/` | Detailed review with correct answers. | Authenticated |
 
-### 📋 Answer Submission Example
-
-**Endpoint**: `POST /api/v1/attempts/{id}/answers/`
-
-**Request Body**:
+**Answer Submission Example**:
+`POST /api/v1/attempts/{id}/answers/`
 ```json
 {
-  "question": "550e8400-e29b-41d4-a716-446655440000",
-  "selected_option": "660f9511-f30c-52e5-b827-557766551111",
+  "question": "uuid-question-id",
+  "selected_option": "uuid-option-id",
   "is_skipped": false
 }
 ```
@@ -120,14 +132,14 @@ The API uses JSON Web Tokens (JWT) for authentication.
 }
 ```
 
-## 👥 Interactions & Notifications
+## 👥 Interactions & Social
 
 | Method | Endpoint | Description | Perms |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/api/v1/interactions/follows/` | Follow another user. | Authenticated |
-| `GET` | `/api/v1/interactions/notifications/` | View your notifications. | Authenticated |
-| `PATCH` | `/api/v1/interactions/notifications/{id}/` | Mark as read. | Authenticated |
-| `PATCH` | `/api/v1/interactions/notifications/read-all/` | Mark all as read. | Authenticated |
+| `POST` | `/api/v1/interactions/follows/` | Follow a user (`{"following": "user_id"}`). | Authenticated |
+| `GET` | `/api/v1/interactions/notifications/` | List your notifications. | Authenticated |
+| `PATCH` | `/api/v1/interactions/notifications/{id}/read/` | Mark as read. | Authenticated |
+| `PATCH` | `/api/v1/interactions/notifications/read_all/` | Mark all as read. | Authenticated |
 
 ## 🏥 Health Check
 
@@ -190,5 +202,10 @@ When an error occurs, the API returns a standard error response:
 - **Anonymous**: 100 requests per day.
 - **Authenticated User**: 1,000 requests per day.
 
-## 📄 Pagination
-All list endpoints support pagination via `?page=N`. Default page size is 10.
+### 📄 Pagination
+All list endpoints support `?page=N`. Default size is 10 items per page.
+
+### ⚠️ Common Errors
+- `401 Unauthorized`: Token missing or expired.
+- `403 Forbidden`: Insufficient permissions (staff/owner required).
+- `400 Bad Request`: Validation failure (e.g., attempt already finished).

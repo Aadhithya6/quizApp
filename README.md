@@ -93,18 +93,34 @@ erDiagram
 - **Attempts**: Tracks a user's journey through a quiz, calculating the score upon completion.
 - **Interactions**: Users can follow each other, rate quizzes, and receive notifications for key events.
 
-## 🤖 AI Integration
-The application uses AI to automate the creation of quiz content.
-- **Workflow**: When creating a quiz, setting `generate_with_ai=True` triggers a service that calls the LLM.
-- **Prompting**: The system passes the topic and difficulty to the AI, requesting a structured JSON response.
-- **Data Integrity**: AI-generated JSON is parsed and validated before being converted into `Question` and `Option` records using a database transaction to ensure atomicity.
+## 🤖 AI Integration Approach
 
-## 🏗️ Design Decisions
-- **Service Layer**: Complex logic (like quiz publishing or attempt scoring) is extracted into service functions to keep views clean and testable.
-- **UUIDs**: Used for all public-facing IDs to prevent enumeration attacks and simplify future database partitioning.
-- **Permissions**: Access is controlled via roles (Public, Authenticated, Admin) and ownership. **Owner** is defined as the user who created the quiz (`Quiz.created_by`).
-- **Throttling**: Implemented rate limiting (100/day for anon, 1000/day for users) to protect AI and database resources.
-- **Caching Strategy**: Frequently accessed endpoints such as quiz listings and leaderboards are cached to improve performance and reduce database load.
+* **AI Service Layer**: I implemented AI integration using a dedicated service layer to keep external API calls isolated from core application logic.
+* **Prompt Design**: The system sends structured prompts including topic, difficulty, and number of questions to generate consistent quiz content.
+* **Structured JSON Output**: The AI is instructed to return responses in a strict JSON format, which is then parsed and validated before storing in the database.
+* **Error Handling and Validation**: I implemented validation checks to handle incomplete or malformed AI responses, ensuring only valid questions are saved.
+* **Transactional Safety**: Quiz, questions, and options are created within a database transaction to ensure atomicity — if any part fails, the entire operation is rolled back.
+* **Mocking for Testing**: AI calls are mocked during testing to ensure deterministic results and avoid dependency on external services.
+* **Extensibility**: The integration is designed to support multiple providers (e.g., OpenAI, NVIDIA models) with minimal changes.
+
+## 🏗️ Design Decisions and Trade-offs
+
+* **Separation of Quiz, Attempt, and Answer Models**: I separated Quiz (template), Attempt (user session), and Answer (per-question response) to ensure clean data modeling and support multiple attempts per user. This improves scalability and enables detailed analytics.
+* **Use of Database Views for Analytics**: Instead of storing derived fields like average score and leaderboard rankings, I used database views. This avoids data redundancy and ensures consistency, at the cost of slightly higher query complexity.
+* **Service Layer for Business Logic**: I moved complex logic such as AI generation, scoring, and publishing into service functions to keep views clean and improve testability and maintainability.
+* **UUIDs for Primary Keys**: I used UUIDs instead of auto-increment integers to prevent ID enumeration and improve security, especially for public APIs.
+* **Multiple Attempts Allowed**: I allowed users to attempt quizzes multiple times to support learning and competition. Leaderboards are calculated using the best attempt per user.
+* **Caching for Performance**: Frequently accessed endpoints like quiz listings and leaderboards are cached to reduce database load and improve response times.
+* **Minimal but Extensible API Design**: I focused on keeping the API clean and minimal while ensuring it can be extended with features like notifications, ratings, and background tasks.
+
+## 🧪 Challenges Faced and Solutions
+
+* **AI Response Parsing and Validation**: AI-generated responses were sometimes inconsistent or malformed. I solved this by enforcing strict JSON structure validation and handling errors gracefully before saving data.
+* **Leaderboard Ranking Logic**: Initially, leaderboard ordering did not correctly handle tie cases. I fixed this by introducing a secondary sorting condition using `time_taken` as a tie-breaker.
+* **Cache Interference in Testing**: Cached data caused inconsistent test results. I resolved this by clearing the cache in the test setup to ensure isolation between test cases.
+* **Queryset Visibility for Draft Quizzes**: Users were unable to see their own draft or pending quizzes. I fixed this by refining queryset logic to include owner-specific visibility.
+* **Handling Duplicate Answers**: Users could potentially submit multiple answers for the same question. I enforced uniqueness constraints and implemented idempotent updates to ensure data consistency.
+* **UUID Handling in Tests**: Comparing UUIDs and strings caused issues in edge case tests. I resolved this by standardizing type handling across the application.
 
 ## 🧪 Testing Approach
 Comprehensive testing ensures reliability across the entire quiz lifecycle.
