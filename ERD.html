@@ -3,61 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz App - Entity Relationship Diagram</title>
+    <title>Quiz App - Database Schema</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --accent-color: #6366f1;
+            --border-color: #e2e8f0;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #0f172a;
+                --card-bg: #1e293b;
+                --text-primary: #f1f5f9;
+                --text-secondary: #94a3b8;
+                --accent-color: #818cf8;
+                --border-color: #334155;
+            }
+        }
+
         body {
-            font-family: 'Anthropic Sans', sans-serif;
-            background-color: #f5f5f5;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
             margin: 0;
-            padding: 20px;
+            padding: 40px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            transition: background-color 0.3s ease;
         }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            max-width: 800px;
+        }
+
+        h1 {
+            font-weight: 800;
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--accent-color), #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.025em;
+        }
+
+        p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
         #erd { 
             width: 100%; 
-            max-width: 1200px;
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 1400px;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            overflow-x: auto;
         }
-        #erd svg { width: 100%; height: auto; }
-        h1 { color: #26215c; }
-        .back-link { margin-bottom: 20px; text-decoration: none; color: #534ab7; font-weight: bold; }
+
+        #erd svg { 
+            width: 100%; 
+            height: auto; 
+            min-width: 1000px;
+        }
+
+        .actions {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-outline {
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        /* Enhanced Visibility for Mermaid */
+        #erd svg {
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        }
+        
+        #erd svg text {
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 500 !important;
+        }
+
+        #erd svg .er.entityLabel {
+            font-weight: 700 !important;
+        }
+
+        #erd svg .er.relationshipLabel {
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
-    <a href="README.md" class="back-link">← Back to README</a>
-    <h1>Entity Relationship Diagram</h1>
+    <div class="header">
+        <h1>Database Schema</h1>
+        <p>A comprehensive view of the Quiz Application's entities and their relationships.</p>
+    </div>
+
+    <div class="actions">
+        <a href="README.md" class="btn btn-outline">← Back to README</a>
+        <a href="API_DOCUMENTATION.md" class="btn btn-outline">API Documentation</a>
+    </div>
+
     <div id="erd"></div>
     <script type="module">
         import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
         const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        await document.fonts.ready;
+        
         mermaid.initialize({
             startOnLoad: false,
-            theme: 'base',
-            fontFamily: '"Anthropic Sans", sans-serif',
+            theme: dark ? 'dark' : 'neutral',
+            fontFamily: "'Inter', sans-serif",
             themeVariables: {
-                darkMode: dark,
-                fontSize: '13px',
-                fontFamily: '"Anthropic Sans", sans-serif',
-                lineColor: dark ? '#9c9a92' : '#73726c',
-                textColor: dark ? '#c2c0b6' : '#3d3d3a',
-                primaryColor: dark ? '#2a2a40' : '#eeedfe',
-                primaryTextColor: dark ? '#c2c0b6' : '#26215c',
-                primaryBorderColor: dark ? '#534ab7' : '#534ab7',
-                secondaryColor: dark ? '#1e2d1e' : '#eaf3de',
-                tertiaryColor: dark ? '#1a2a2a' : '#e1f5ee',
-                background: dark ? '#1a1a1a' : '#ffffff',
-                mainBkg: dark ? '#2a2a40' : '#eeedfe',
-                nodeBorder: dark ? '#534ab7' : '#534ab7',
-                clusterBkg: dark ? '#1e1e30' : '#f5f5ff',
-                titleColor: dark ? '#c2c0b6' : '#26215c',
-                edgeLabelBackground: dark ? '#1a1a1a' : '#ffffff',
-                attributeBackgroundColorEven: dark ? '#222233' : '#f5f5ff',
-                attributeBackgroundColorOdd: dark ? '#1e1e2e' : '#eeedfe',
+                primaryColor: '#6366f1',
+                primaryTextColor: '#ffffff',
+                primaryBorderColor: '#4f46e5',
+                lineColor: '#6366f1',
+                secondaryColor: '#818cf8',
+                tertiaryColor: dark ? '#1e293b' : '#f8fafc',
             },
         });
 
