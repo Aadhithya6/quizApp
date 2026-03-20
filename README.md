@@ -1,6 +1,8 @@
-# AI-Powered Quiz Application API
-
 Production-grade Django REST API for an AI-powered Quiz Application.
+
+## 🌐 Live API
+The project is officially deployed on **Railway**: 
+[https://quizapp-production-786c.up.railway.app](https://quizapp-production-786c.up.railway.app)
 
 ## 🚀 Features
 - **AI-Powered Question Generation**: Automatically generate high-quality quiz questions using OpenAI or NVIDIA models.
