@@ -2,9 +2,17 @@ from django.contrib import admin
 from django.urls import path, include
 from quizzes.views import GlobalSearchView
 import common.views
+from django.http import JsonResponse
 
-urlpatterns = [
+def root_view(request):
+    return JsonResponse({
+        "status": "ok",
+        "message": "Quiz API is running"
+    })
+
     
+urlpatterns = [
+    path('', root_view), 
     path('admin/', admin.site.urls),
     path('api/v1/auth/', include('accounts.urls')),
     path('api/v1/users/', include('accounts.urls')),
