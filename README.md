@@ -85,6 +85,9 @@ erDiagram
     ATTEMPT ||--o{ ANSWER : attempt
 ```
 
+> [!TIP]
+> **View Interactive Schema**: For a detailed view of all table attributes and relationships, check the [Interactive ERD Documentation](./ERD.html).
+
 ### Core Relationships:
 - **Users & Quizzes**: Users create quizzes (Owners). Admin/Moderators can review and publish them.
 - **Quizzes & Questions**: A quiz is a collection of ordered questions.
