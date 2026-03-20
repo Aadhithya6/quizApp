@@ -4,8 +4,8 @@ from .views import RegisterView, UserViewSet
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
-    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('login/', TokenObtainPairView.as_view(), name='login'),
+    path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('me/', UserViewSet.as_view({'get': 'retrieve', 'patch': 'partial_update'}), name='me'),
     path('me/quizzes/', UserViewSet.as_view({'get': 'quizzes'}), name='me-quizzes'),
     path('me/attempts/', UserViewSet.as_view({'get': 'attempts'}), name='me-attempts'),

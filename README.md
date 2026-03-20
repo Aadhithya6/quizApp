@@ -100,9 +100,9 @@ The application uses AI to automate the creation of quiz content.
 ## 🏗️ Design Decisions
 - **Service Layer**: Complex logic (like quiz publishing or attempt scoring) is extracted into service functions to keep views clean and testable.
 - **UUIDs**: Used for all public-facing IDs to prevent enumeration attacks and simplify future database partitioning.
+- **Permissions**: Access is controlled via roles (Public, Authenticated, Admin) and ownership. **Owner** is defined as the user who created the quiz (`Quiz.created_by`).
 - **Throttling**: Implemented rate limiting (100/day for anon, 1000/day for users) to protect AI and database resources.
-- **Social Tables**: We added `Notification`, `Follow`, and `QuizRating` tables to foster a community around the quizzes, allowing users to track creators they like and get notified of new content.
-- **Caching**: Use of `cache_page` for quiz listings significantly reduces database load for high-traffic public quizzes.
+- **Caching Strategy**: Frequently accessed endpoints such as quiz listings and leaderboards are cached to improve performance and reduce database load.
 
 ## 🧪 Testing Approach
 Comprehensive testing ensures reliability across the entire quiz lifecycle.

@@ -6,6 +6,14 @@ This document provides a detailed reference for all available API endpoints in t
 The API uses JSON Web Tokens (JWT) for authentication.
 - **Header**: `Authorization: Bearer <your_access_token>`
 - **Token URL**: `/api/v1/auth/login/`
+- **Refresh URL**: `/api/v1/auth/refresh/`
+
+## 🛡️ Permissions & Roles
+
+- **Public**: Anyone can access.
+- **Authenticated**: Requires a valid JWT token.
+- **Admin**: Staff users only.
+- **Owner**: The user who created the quiz (`Quiz.created_by`).
 
 ## 👤 User Data (`/api/v1/users/me/`)
 
@@ -74,6 +82,29 @@ The API uses JSON Web Tokens (JWT) for authentication.
 | `GET` | `/{id}/questions/` | Fetch questions for an active attempt (handles shuffling). | Authenticated |
 | `POST` | `/{id}/answers/` | Submit an answer for a specific question. | Authenticated |
 | `POST` | `/{id}/submit/` | Finish and grade the attempt. | Authenticated |
+
+### 📋 Answer Submission Example
+
+**Endpoint**: `POST /api/v1/attempts/{id}/answers/`
+
+**Request Body**:
+```json
+{
+  "question": "550e8400-e29b-41d4-a716-446655440000",
+  "selected_option": "660f9511-f30c-52e5-b827-557766551111",
+  "is_skipped": false
+}
+```
+
+**Field Explanations**:
+- `question` (UUID): The ID of the question being answered.
+- `selected_option` (UUID): The ID of the chosen option (required if `is_skipped` is `false`).
+- `is_skipped` (Boolean): Set to `true` to skip the question.
+
+**Validation Rules**:
+- The question must belong to the quiz associated with the attempt.
+- The selected option must belong to the specified question.
+- You cannot answer the same question multiple times in a single attempt.
 | `GET` | `/{id}/review/` | Review completed attempt with correct answers. | Authenticated |
 
 ### 📋 Attempt Response Example
