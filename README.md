@@ -61,6 +61,27 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
+## 🛠️ API Tester (Local & Production)
+
+The project includes a built-in, standalone **API Tester** (`tester.html`) to verify CORS, authentication, and endpoint functionality without needing Postman.
+
+### 1. Run the Tester
+Open the `tester.html` file in your browser. To avoid browser security restrictions (CORS), it is recommended to serve it via a local server:
+```bash
+# In the project root
+python -m http.server 8000
+```
+Then visit: `http://localhost:8000/tester.html`
+
+### 2. Features
+- **Endpoint Preset**: Quickly select common routes (Register, Login, Quizzes).
+- **Auto-Token Management**: Login once, and the `access` token is automatically stored for subsequent requests.
+- **Workflow Testing**: Test POST/PATCH requests with custom JSON bodies.
+
+### 3. Production Testing
+If testing against a live deployment (e.g., Railway), ensure your local origin is allowed:
+- Set `CORS_ALLOW_ALL_ORIGINS=True` or add `http://localhost:8000` to `CORS_ALLOWED_ORIGINS` in your environment variables.
+
 ## 📊 Database Schema
 
 ```mermaid
