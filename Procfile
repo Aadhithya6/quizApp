@@ -1,1 +1,1 @@
-web: python manage.py migrate && gunicorn quiz_app.wsgi
+web: gunicorn quiz_app.wsgi

@@ -9,3 +9,4 @@ openai
 requests
 gunicorn
 whitenoise
+dj-database-url
