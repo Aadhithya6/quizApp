@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
-from common.views import GlobalSearchView
+from quizzes.views import GlobalSearchView
+import common.views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -14,4 +15,5 @@ urlpatterns = [
     path('api/v1/search', include([
         path('', GlobalSearchView.as_view({'get': 'list'}), name='global-search'),
     ])),
+    path('api/v1/health/', common.views.health_check, name='health-check'),
 ]

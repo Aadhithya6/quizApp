@@ -12,6 +12,12 @@ class AttemptViewSet(viewsets.ModelViewSet):
     queryset = Attempt.objects.all()
     serializer_class = AttemptSerializer
 
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            from .serializers import AttemptSummarySerializer
+            return AttemptSummarySerializer
+        return super().get_serializer_class()
+
     def get_permissions(self):
         return [permissions.IsAuthenticated()]
 

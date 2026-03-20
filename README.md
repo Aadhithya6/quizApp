@@ -5,9 +5,10 @@ Production-grade Django REST API for an AI-powered Quiz Application.
 ## 🚀 Features
 - **AI-Powered Question Generation**: Automatically generate high-quality quiz questions using OpenAI or NVIDIA models.
 - **Robust Attempt System**: Track user attempts, calculate scores, handle shuffling, and manage time limits.
-- **Social & Engagement**: Quiz ratings, user follows, and a notification system.
-- **Advanced Search & Filtering**: Global search across quizzes and fine-grained filtering by category, difficulty, or tags.
-- **Production Ready**: JWT authentication, role-based access control (RBAC), throttling, and caching.
+- **Social & Engagement**: Quiz ratings (with user avatars), user follows, and a notification system (mark all as read).
+- **Advanced Search & Filtering**: Global search across quizzes and fine-grained filtering by category, difficulty, or tags (active only).
+- **Detailed Analytics**: Leaderboards, quiz stats, and attempt summaries.
+- **Developer Friendly**: Health check endpoint and comprehensive API documentation.
 
 ## 🛠️ Tech Stack
 - **Backend**: Django & Django REST Framework (DRF)

@@ -3,10 +3,11 @@ from .models import QuizRating, Follow, Notification
 
 class QuizRatingSerializer(serializers.ModelSerializer):
     username = serializers.ReadOnlyField(source='user.username')
+    user_avatar = serializers.ReadOnlyField(source='user.avatar_url')
 
     class Meta:
         model = QuizRating
-        fields = ('id', 'user', 'username', 'quiz', 'rating', 'review', 'created_at', 'updated_at')
+        fields = ('id', 'user', 'username', 'user_avatar', 'quiz', 'rating', 'review', 'created_at', 'updated_at')
         read_only_fields = ('id', 'user', 'quiz', 'created_at', 'updated_at')
 
 class FollowSerializer(serializers.ModelSerializer):

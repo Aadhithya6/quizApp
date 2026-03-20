@@ -40,7 +40,10 @@ The API uses JSON Web Tokens (JWT) for authentication.
 | `POST` | `/{id}/reject/` | Reject a pending quiz. | Admin |
 | `GET` | `/pending/` | List all quizzes awaiting review. | Admin |
 | `POST` | `/{id}/attempts/` | Start a new attempt for a quiz. | Authenticated |
+| `POST` | `/{id}/retry/` | Shorthand to start a new attempt (increments attempt_number). | Authenticated |
 | `POST` | `/{id}/rating/` | Rate and review a quiz (1-5). | Authenticated |
+| `GET` | `/{id}/ratings/` | List all ratings for a quiz (includes avatars). | Public |
+| `GET` | `/{id}/attempts/` | List your attempts for this quiz (Admin sees all). | Authenticated |
 
 ### 📋 Quiz Response Example
 ```json
@@ -93,6 +96,13 @@ The API uses JSON Web Tokens (JWT) for authentication.
 | `POST` | `/api/v1/interactions/follows/` | Follow another user. | Authenticated |
 | `GET` | `/api/v1/interactions/notifications/` | View your notifications. | Authenticated |
 | `PATCH` | `/api/v1/interactions/notifications/{id}/` | Mark as read. | Authenticated |
+| `PATCH` | `/api/v1/interactions/notifications/read-all/` | Mark all as read. | Authenticated |
+
+## 🏥 Health Check
+
+| Method | Endpoint | Description | Perms |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/health/` | API health status. | Public |
 
 ## 📊 Analytics & Search
 

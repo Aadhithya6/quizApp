@@ -18,7 +18,7 @@ from attempts.serializers import AttemptSerializer
 from attempts.services import start_quiz_attempt
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
+    queryset = Category.objects.filter(is_active=True)
     serializer_class = CategorySerializer
     
     def get_permissions(self):
@@ -27,7 +27,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
         return [permissions.AllowAny()]
 
 class TagViewSet(viewsets.ModelViewSet):
-    queryset = Tag.objects.all()
+    queryset = Tag.objects.filter(is_active=True)
     serializer_class = TagSerializer
 
     def get_permissions(self):
@@ -142,23 +142,54 @@ class QuizViewSet(viewsets.ModelViewSet):
         serializer = QuizSerializer(quizzes, many=True)
         return Response(serializer.data)
 
-    @decorators.action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
-    def attempts(self, request, pk=None):
-        """Starts a new attempt for the quiz (Nested resource style)."""
+
+    @decorators.action(detail=True, methods=['post'], url_path='retry', permission_classes=[permissions.IsAuthenticated])
+    def retry(self, request, pk=None):
+        """Creates a new attempt (shorthand for start attempt)."""
+        response = self.attempts(request, pk)
+        if response.status_code == status.HTTP_201_CREATED:
+            return Response({"attempt_id": response.data['id']}, status=status.HTTP_201_CREATED)
+        return response
+
+    @decorators.action(detail=True, methods=['get'], permission_classes=[permissions.AllowAny])
+    def ratings(self, request, pk=None):
+        """Returns all ratings for a quiz."""
         quiz = self.get_object()
+        ratings = quiz.ratings.select_related('user').all()
+        page = self.paginate_queryset(ratings)
+        if page is not None:
+            serializer = QuizRatingSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = QuizRatingSerializer(ratings, many=True)
+        return Response(serializer.data)
+
+    @decorators.action(detail=True, methods=['get', 'post'], permission_classes=[permissions.IsAuthenticated])
+    def attempts(self, request, pk=None):
+        """Handles both listing and starting attempts for a quiz."""
+        quiz = self.get_object()
+        
+        if request.method == 'GET':
+            attempts = Attempt.objects.filter(quiz=quiz)
+            if not request.user.role == User.Role.ADMIN:
+                attempts = attempts.filter(user=request.user)
+            
+            page = self.paginate_queryset(attempts)
+            if page is not None:
+                serializer = AttemptSerializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            serializer = AttemptSerializer(attempts, many=True)
+            return Response(serializer.data)
+            
+        # POST method (Start attempt)
         if quiz.status != Quiz.Status.PUBLISHED:
             return Response({"detail": "Quiz is not published."}, status=status.HTTP_400_BAD_REQUEST)
         
+        from attempts.services import start_quiz_attempt
         try:
             attempt = start_quiz_attempt(request.user, quiz)
             return Response(AttemptSerializer(attempt).data, status=status.HTTP_201_CREATED)
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-    @decorators.action(detail=True, methods=['post'], url_path='retry', permission_classes=[permissions.IsAuthenticated])
-    def retry(self, request, pk=None):
-        """Creates a new attempt (shorthand for start attempt)."""
-        return self.attempts(request, pk)
 
     @decorators.action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def rating(self, request, pk=None):
@@ -175,14 +206,10 @@ class QuizViewSet(viewsets.ModelViewSet):
             return Response(QuizRatingSerializer(rating).data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @decorators.action(detail=True, methods=['get'], permission_classes=[permissions.AllowAny])
-    def ratings(self, request, pk=None):
-        """Returns all ratings for a quiz."""
-        quiz = self.get_object()
-        ratings = quiz.ratings.all()
-        page = self.paginate_queryset(ratings)
-        if page is not None:
-            serializer = QuizRatingSerializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = QuizRatingSerializer(ratings, many=True)
-        return Response(serializer.data)
+class GlobalSearchView(viewsets.ReadOnlyModelViewSet):
+    """Global search across quizzes and tags."""
+    queryset = Quiz.objects.filter(status=Quiz.Status.PUBLISHED, is_active=True)
+    serializer_class = QuizSerializer
+    filter_backends = (SearchFilter,)
+    search_fields = ('title', 'topic', 'description', 'tags__name', 'category__name')
+    permission_classes = (permissions.AllowAny,)
