@@ -29,7 +29,7 @@ class BaseAPITestCase(APITestCase):
         self.admin_user.save()
 
     def login(self, username, password):
-        url = reverse('token_obtain_pair')
+        url = reverse('login')
         response = self.client.post(url, {
             'username': username,
             'password': password
