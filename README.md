@@ -1,16 +1,28 @@
 Production-grade Django REST API for an AI-powered Quiz Application.
 
+---
+
 ## 🌐 Live API
 The project is officially deployed on **Railway**: 
 [https://quizapp-production-786c.up.railway.app](https://quizapp-production-786c.up.railway.app)
 
+---
+
+## 📖 Essential Documentation
+> [!IMPORTANT]
+> **View Interactive Database Schema**: For a detailed view of all table attributes and relationships, check the [Interactive ERD Documentation](./ERD.html). (Download the file and open it in your browser).
+
+* **API Specification**: See the full list of endpoints in [API_DOCUMENTATION.md](./API_DOCUMENTATION.md).
+* **Architecture Deep Dive**: Learn about the system design in [ARCHITECTURAL_DECISIONS.md](./ARCHITECTURAL_DECISIONS.md).
+
+---
+
 ## 🚀 Features
 - **AI-Powered Question Generation**: Automatically generate high-quality quiz questions using OpenAI or NVIDIA models.
 - **Robust Attempt System**: Track user attempts, calculate scores, handle shuffling, and manage time limits.
-- **Social & Engagement**: Quiz ratings (with user avatars), user follows, and a notification system (mark all as read).
-- **Advanced Search & Filtering**: Global search across quizzes and fine-grained filtering by category, difficulty, or tags (active only).
+- **Social & Engagement**: Quiz ratings (with user avatars), user follows, and a notification system.
+- **Advanced Search & Filtering**: Global search across quizzes and fine-grained filtering.
 - **Detailed Analytics**: Leaderboards, quiz stats, and attempt summaries.
-- **Developer Friendly**: Health check endpoint and comprehensive API documentation.
 
 ## 🛠️ Tech Stack
 - **Backend**: Django & Django REST Framework (DRF)
@@ -108,16 +120,7 @@ erDiagram
     ATTEMPT ||--o{ ANSWER : attempt
 ```
 
-> [!TIP]
-> **View Interactive Schema**: For a detailed view of all table attributes and relationships, check the [Interactive ERD Documentation](./ERD.html).Download this file from github and open in chrome browser.
-### Core Relationships:
-- **Users & Quizzes**: Users create quizzes (Owners). Admin/Moderators can review and publish them.
-- **Quizzes & Questions**: A quiz is a collection of ordered questions.
-- **Attempts**: Tracks a user's journey through a quiz, calculating the score upon completion.
-- **Interactions**: Users can follow each other, rate quizzes, and receive notifications for key events.
-
 ## 🤖 AI Integration Approach
-
 * **AI Service Layer**: I implemented AI integration using a dedicated service layer to keep external API calls isolated from core application logic.
 * **Prompt Design**: The system sends structured prompts including topic, difficulty, and number of questions to generate consistent quiz content.
 * **Structured JSON Output**: The AI is instructed to return responses in a strict JSON format, which is then parsed and validated before storing in the database.
@@ -125,6 +128,12 @@ erDiagram
 * **Transactional Safety**: Quiz, questions, and options are created within a database transaction to ensure atomicity — if any part fails, the entire operation is rolled back.
 * **Mocking for Testing**: AI calls are mocked during testing to ensure deterministic results and avoid dependency on external services.
 * **Extensibility**: The integration is designed to support multiple providers (e.g., OpenAI, NVIDIA models) with minimal changes.
+
+## 🔗 Core Relationships
+- **Users & Quizzes**: Users create quizzes (Owners). Admin/Moderators can review and publish them.
+- **Quizzes & Questions**: A quiz is a collection of ordered questions.
+- **Attempts**: Tracks a user's journey through a quiz, calculating the score upon completion.
+- **Interactions**: Users can follow each other, rate quizzes, and receive notifications for key events.
 
 ## 🏗️ Design Decisions and Trade-offs
 
