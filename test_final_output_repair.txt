@@ -1,5 +1,0 @@
-Creating test database for alias 'default'...
-Got an error creating the test database: database "test_quiz_db" already exists
-
-Found 15 test(s).
-Type 'yes' if you would like to try deleting the test database 'test_quiz_db', or 'no' to cancel: 
