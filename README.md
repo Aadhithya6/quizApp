@@ -105,6 +105,9 @@ erDiagram
 
 ## 🏗️ Design Decisions and Trade-offs
 
+> [!NOTE]
+> **Architecture Evolution**: For a detailed deep-dive into how the system's architecture evolved from a basic quiz to a production-ready attempt system, see [ARCHITECTURAL_DECISIONS.md](./ARCHITECTURAL_DECISIONS.md).
+
 * **Separation of Quiz, Attempt, and Answer Models**: I separated Quiz (template), Attempt (user session), and Answer (per-question response) to ensure clean data modeling and support multiple attempts per user. This improves scalability and enables detailed analytics.
 * **Use of Database Views for Analytics**: Instead of storing derived fields like average score and leaderboard rankings, I used database views. This avoids data redundancy and ensures consistency, at the cost of slightly higher query complexity.
 * **Service Layer for Business Logic**: I moved complex logic such as AI generation, scoring, and publishing into service functions to keep views clean and improve testability and maintainability.
